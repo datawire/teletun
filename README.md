@@ -10,7 +10,7 @@ macOS:
 
 GNU/Linux:
  - Linux >= 2.2 (1999): For "tun" network driver
-
+ - Linux >= 2.0: For sockio-base route control
 
 # Links:
 
