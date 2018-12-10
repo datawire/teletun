@@ -3,7 +3,8 @@
 ## Usage
 
  - `teletun client [-kubeconfig=FILE] -pod=PODNAME -port=PORT -server-pubkey=FILE -client-pubkey=FILE -client-privkey=FILE`
- - `teletun server -port=PORT -server-pubkey=FILE -server-privkey=FILE -client-pubkey=FILE`
+ - `teletun server-external -port=PORT -server-pubkey=FILE -server-privkey=FILE -client-pubkey=FILE -sockfile=FILE`
+ - `teletun server-cluster -sockfile=FILE`
  - `teletun cleanup`
 
 ## Requirements:
@@ -32,6 +33,8 @@ GNU/Linux:
    Exception: assumes a functioning `resolvconf`(8); users with fancy
    DNS setups may have disabled or broken `resolvconf`--they knew what
    they were getting themselves in to.
+ - Can have multiple instances connecting to multiple clusters at
+   once.
  - Network performance should be good.
 
 ## Wire protocol
@@ -49,6 +52,42 @@ GNU/Linux:
  - Though the TCP+TLS connection is no longer used to exchange data,
    it is kept alive.  The client or server may disconnect by closing
    the connection.
+
+## How it works
+
+Client:
+
+ - Creates a TUN device (a L3 virtual interface) that will show up in
+   `ifconfig` just like any other network interface.  On Linux, it is
+   named `tel0` (or `tel1`...); on macOS it is named `utun0` (or
+   `utun`...) because macOS doesn't let us set the name.
+ - Uses the Kubernetes client library to get a list of all cluster
+   IPs, and add direct routes for those to the the TUN interface.
+ - Sets the IP address of the TUN device to the cluster IP of the
+   server.
+ - Adds the `resolv.conf` from the server as an interface-specific
+   `resolv.conf` for the TUN device.
+
+Server:
+
+ - The server comes in 2 parts: server-external and server-cluster.
+   They run in separate pods on the same node, and communicate with
+   eachother using an AF_UNIX socket.
+
+Server-external:
+
+ - Reads server-internal's IP and `resolv.conf` over AF_UNIX socket
+ - Sends that information to the client over a TCP socket
+ - Pumps data between the TCP socket and the AF_UNIX socket
+
+Server-cluster:
+
+ - The client will "think" that it is this pod in the cluster
+ - Proxies data between the AF_UNIX socket and a TUN device that is
+   bridged with the real ethernet device.
+ - Because the client's VPN IP is the same as the real ethernet IP, we
+   don't need to muck with promiscuous mode or munging IPs or
+   anything.
 
 ## Known problems (things that should be fixed):
 
@@ -74,6 +113,8 @@ GNU/Linux:
  - The server can only serve 1 client at a time.  If multiple clients
    wish to connect to the cluster, they will each need to deploy their
    own server.
+ - Overlapping/conflicting IP ranges when connecting to multiple
+   clusters.
 
 ## Future directions
 
