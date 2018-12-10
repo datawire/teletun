@@ -7,8 +7,17 @@ package main
 
 import (
 	"log"
-	"os/exec"
+	"net"
 )
+
+// FIXME: This calls socat(1) because I could not find a good DTLS
+// implementation in Go, and I didn't want to muck with OpenSSL
+// bindings yet.  I don't like this because socat does not allow us to
+// deal with errors robustly, has bad buffering characteristics, and
+// might not actually be compiled with OpenSSL support.
+func DialDTLS(address string) (net.PacketConn, error) {
+	// socat STDIO OPENSSL:{address},method=DTLS1
+}
 
 func main() {
 	tun, err := OpenTun()
@@ -16,12 +25,8 @@ func main() {
 		log.Fatal("Unable to open TUN interface:", err)
 	}
 
-	route.
-
-	err := exec.Command("ifconfig", IPtun.Name(),
-		"address", kubectl.getaddr4(),
-		"add", kubectl.getaddr6()).Run()
-	if err != nil {
-		log.Fatalf("Unable to set IP address of %s interface: %v", name, err)
-	}
+	// 1. Get IP address from kubectl/remote
+	// 2. Get list of IPs from kubectl (and subscribe to updates)
+	// 3. Get resolv.conf from remote
+	// 4. Pass traffic over DTLS to
 }
