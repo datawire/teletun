@@ -89,6 +89,29 @@ Server-cluster:
    don't need to muck with promiscuous mode or munging IPs or
    anything.
 
+## How is this different than sshuttle/teleproxy
+
+ - TeleTUN is a for-realsies VPN.  sshuttle (and teleproxy, which
+   mimics it) isn't a real VPN.  Avery Pennarun, the author of
+   sshuttle is very careful to never say it's a VPN, it's a new
+   category of thing that does VPN-ish things.  I'd say it's a "really
+   weird userspace firewall, that acts like a VPN".
+
+## How is this different than other VPN softwares?
+
+ - With a typical VPN, connecting to the VPN adds the client host to
+   the network.
+ - With TeleTUN, Connecting to the VPN does NOT add the client as a
+   host to the cluster network.  Instead, it effectively replaces the
+   server on the cluster network.
+   * This means that the client and the server cannot talk to
+     eachother via the cluster network, because they are the *same* IP
+     address on the cluster network.  This is why the server is a
+     2-pod pair; one pod that the client can talk to, and the other
+     pod that the client "replaces".
+   * This is because we want Kubernetes (not the VPN server) to be
+     responsible for adding hosts to the cluster network.
+
 ## Known problems (things that should be fixed):
 
  - Uses `socat` to accomplish DTLS, instead of binding to OpenSSL
