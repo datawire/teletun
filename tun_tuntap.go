@@ -1,3 +1,5 @@
+// tun_linux.go: Open a Tunnel (L3 virtual interface) using the Universal TUN/TAP driver.
+
 // +build linux
 
 package main

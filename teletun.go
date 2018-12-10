@@ -16,6 +16,8 @@ func main() {
 		log.Fatal("Unable to open TUN interface:", err)
 	}
 
+	route.
+
 	err := exec.Command("ifconfig", IPtun.Name(),
 		"address", kubectl.getaddr4(),
 		"add", kubectl.getaddr6()).Run()

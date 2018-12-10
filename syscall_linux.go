@@ -32,3 +32,22 @@ func IoctlTunSetInterfaceFlags(fd int, name string, flags int16) (string, error)
 
 	return string(bytes.SplitN(ifreq.name[:], []byte{0}, 2)[0]), err
 }
+
+// IoctlGetInterfaceIndex wraps the SIOCGIFINDEX ioctl
+func IoctlGetInterfaceIndex(fd int, name string) (int32, error) {
+	var ifreq struct {
+		name    [unix.IFNAMSIZ]byte
+		ifindex int32
+	}
+
+	if len(name) > unix.IFNAMSIZ {
+		return -1, unix.EINVAL
+	}
+	for i, b := range []byte(name) {
+		ifreq.name[i] = b
+	}
+
+	err := unix.IoctlSetInt(fd, unix.SIOCGIFINDEX, int(uintptr(unsafe.Pointer(&ifreq))))
+
+	return ifreq.ifindex, err
+}

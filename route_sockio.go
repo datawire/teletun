@@ -33,6 +33,8 @@ type sockioRoutingTable struct {
 	fd6_ok bool
 }
 
+var RoutingTable = sockioRoutingTable{}
+
 func (rt *sockioRoutingTable) close() {
 	if rt.fd4_ok {
 		unix.Close(rt.fd4)
@@ -139,9 +141,18 @@ type IPv6Route struct {
 	DstLen         uint16
 	SrcLen         uint16
 	Metric         uint32
-	info           C.ulong
+	info           int // C.ulong
 	Flags          uint32
-	InterfaceIndex C.int
+	InterfaceIndex int32 // C.int
+}
+
+func (rt *sockioRoutingTable) GetInterfaceIndex(ifname string) (int32, error) {
+	fd, err := rt.getFD6()
+	if err != nil {
+		return -1, err
+	}
+
+	return IoctlGetInterfaceIndex(fd, ifname)
 }
 
 func (rt *sockioRoutingTable) AddIPv6Route(route IPv6Route) error {
