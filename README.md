@@ -7,7 +7,7 @@
  - `teletun server-cluster -sockfile=FILE`
  - `teletun cleanup`
 
-## Requirements:
+## Client requirements:
 
 General:
  - Go 1.11 (at compile time)
@@ -21,6 +21,10 @@ macOS:
 GNU/Linux:
  - Linux >= 2.2 (1999): For "tun" network driver
  - Linux >= 2.0 (YYYY): For sockio-base route control
+
+## Server requirements
+
+ - CAP_NET_RAW
 
 ## Positive aspects
 

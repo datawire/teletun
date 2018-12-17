@@ -1,0 +1,30 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: teletun
+  labels:
+    teletun: 1
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      teletun: 1
+  template:
+    metadata:
+      labels:
+        teletun: 1
+    spec:
+      containers:
+      - name: teletun
+        image: docker.io/lukeshu/teletun
+        command: ['teletun-server', '--port=9876', '--interface=eth0']
+        ports:
+        - name: teletun
+          protcol: UDP
+          containerPort: 8080
+        securityContext:
+          capabilities:
+            add: ["NET_RAW"]
