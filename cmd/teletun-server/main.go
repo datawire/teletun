@@ -58,7 +58,7 @@ func main() {
 		}
 		f := os.NewFile(uintptr(fd), "any")
 		defer f.Close()
-		buf := make([]byte, 1500)
+		buf := make([]byte, unix.SizeofSockaddrLinklayer+1500)
 		for {
 			n, err := f.Read(buf)
 			l3packet := buf[:n]
