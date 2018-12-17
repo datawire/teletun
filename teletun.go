@@ -1,8 +1,8 @@
 // TeleTUN is a L3 VPN for Kubernetes
 //
 // Only supports routing for IPv4 and IPv6.  Transport of other L3
-// protocols (like X.25) should work, but routing for them will need
-// to be manually set up.
+// protocols (like X.25) should work (I think macOS only supports
+// IPv4/IPv6), but routing for them will need to be manually set up.
 package main
 
 import (

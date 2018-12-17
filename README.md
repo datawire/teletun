@@ -47,8 +47,9 @@ GNU/Linux:
    `/etc/resolv.conf`.  This is terminated by a null-byte.
  - client: dials server on UDP+DTLS, using the given certs
  - client and server send raw L3 packets back and forth over that
-   UDP+DTLS connection.  There is no signalling to indicate packet
-   type; Linux and XNU are both smart enough to guess.
+   UDP+DTLS connection.  There is no signalling to indicate which L3
+   protocol a packet is; Linux is smart enough to guess, and we are
+   smart enough to guess on macOS.
  - Though the TCP+TLS connection is no longer used to exchange data,
    it is kept alive.  The client or server may disconnect by closing
    the connection.
@@ -89,15 +90,17 @@ Server-cluster:
    don't need to muck with promiscuous mode or munging IPs or
    anything.
 
-## How is this different than sshuttle/teleproxy
+## FAQ
+
+### How is this different than sshuttle/teleproxy?
 
  - TeleTUN is a for-realsies VPN.  sshuttle (and teleproxy, which
-   mimics it) isn't a real VPN.  Avery Pennarun, the author of
-   sshuttle is very careful to never say it's a VPN, it's a new
+   mimics it) isn't a real VPN.  Avery Pennarun (the author of
+   sshuttle) is very careful to never say it's a VPN, it's a new
    category of thing that does VPN-ish things.  I'd say it's a "really
    weird userspace firewall, that acts like a VPN".
 
-## How is this different than other VPN softwares?
+### How is this different than other VPN softwares?
 
  - With a typical VPN, connecting to the VPN adds the client host to
    the network.
@@ -111,6 +114,12 @@ Server-cluster:
      pod that the client "replaces".
    * This is because we want Kubernetes (not the VPN server) to be
      responsible for adding hosts to the cluster network.
+
+### Why does it have to handle traffic in both directions?
+
+ - Because it acts at L3, not L4.  We don't have a concept of
+   connections in order to know how to route the inbound part of an
+   outbound TCP connection.
 
 ## Known problems (things that should be fixed):
 
