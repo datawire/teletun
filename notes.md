@@ -12,3 +12,5 @@ macOS:
  - int32_be: address family (as in AF_INET or AF_INET6)
 
 https://github.com/kubernetes/kubernetes/issues/47862
+
+https://github.com/flix-tech/k8s-mdns/
